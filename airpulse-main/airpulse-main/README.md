@@ -29,7 +29,7 @@ AirPulse is a hybrid system designed to collect, process, and analyze real-time 
 ---
 
 ## Project Architecture
-![System Architecture](./image1)
+![System Architecture](./architecture.png)
 1. **Wearable Edge Device (Arduino/ESP32)**: Captures air quality and health signals (PM2.5, CO2, VOCs, HR, Temp).
 2. **EdgeFrame Threshold Engine**: Processes sensor data locally and triggers alerts when thresholds are exceeded.
 3. **Forgetful Forest Module**: Learns from incoming data in real-time, adapts to concept drift and evolving conditions.
