@@ -1,6 +1,6 @@
 # AirPulse: Real-time Air Quality & Health Monitoring System with EdgeFrame and Forgetful Forest
 
-AirPulse is an enhanced real-time air quality and health monitoring system that integrates wearable IoT sensors with hybrid edge-based intelligence. It uses the EdgeFrame threshold model for on-device decision-making and Forgetful Forest (FF) for adaptive learning in streaming environments.
+AirPulse is an enhanced real-time air quality and health monitoring system that integrates wearable IoT sensors with hybrid edge-based intelligence. It uses the **EdgeFrame threshold model** for on-device decision-making and **Forgetful Forest (FF)** for adaptive learning in streaming environments.
 
 ---
 
@@ -15,21 +15,23 @@ AirPulse is an enhanced real-time air quality and health monitoring system that 
 - [Challenges](#challenges)
 - [Installation](#installation)
 - [Development Phases](#development-phases)
-- [API Documentation](#api-documentation)
 - [Monitoring and Observability](#monitoring-and-observability)
-- [Contributing](#contributing)
+- [Contributions](#contributions)
+- [References](#references)
 - [License](#license)
 
 ---
 
 ## Overview
 
-AirPulse is a hybrid system designed to collect, process, and analyze real-time environmental and physiological data. The platform uses edge-computing principles to locally process data using EdgeFrame logic and adaptively model environmental conditions using Forgetful Forest. Data is selectively transmitted to the cloud for analytics, alerts, and visualization.
+**AirPulse** is a hybrid system designed to collect, process, and analyze real-time environmental and physiological data. The platform uses edge-computing principles to locally process data using **EdgeFrame logic** and adaptively model environmental conditions using **Forgetful Forest**. Data is selectively transmitted to the cloud for analytics, alerts, and visualization.
 
 ---
 
 ## Project Architecture
+
 ![System Architecture](./architecture.png)
+
 1. **Wearable Edge Device (Arduino/ESP32)**: Captures air quality and health signals (PM2.5, CO2, VOCs, HR, Temp).
 2. **EdgeFrame Threshold Engine**: Processes sensor data locally and triggers alerts when thresholds are exceeded.
 3. **Forgetful Forest Module**: Learns from incoming data in real-time, adapts to concept drift and evolving conditions.
@@ -57,21 +59,23 @@ AirPulse is a hybrid system designed to collect, process, and analyze real-time 
 
 ## Key Features
 
-- **Hybrid edge-cloud architecture**
+- Hybrid edge-cloud architecture
 - **EdgeFrame on-device logic** for instant decision-making
 - **Forgetful Forest** streaming ML model for adaptive learning
-- **Modular sensor interface** (air + health)
-- **Low-power wearable support**
-- **Scalable messaging and data handling**
-- **RESTful APIs with real-time analytics**
-- **Monitoring and visualization using Grafana**
+- Modular sensor interface (air + health)
+- Low-power wearable support
+- Scalable messaging and data handling
+- RESTful APIs with real-time analytics
+- Monitoring and visualization using Grafana
 
 ---
 
 ## Edge Intelligence
 
-- **EdgeFrame**: Processes incoming data locally on the wearable and evaluates it against pre-configured thresholds. For example, PM2.5 > 100 triggers local alert before cloud sync.
-- **Forgetful Forest**: Continuously learns and adapts to real-time air quality trends. Supports streaming updates and pruning of outdated trees to reduce memory.
+- **EdgeFrame**: Processes incoming data locally on the wearable and evaluates it against pre-configured thresholds.
+    - Example: `PM2.5 > 100` triggers local alert before cloud sync.
+- **Forgetful Forest**: Continuously learns and adapts to real-time air quality trends.
+    - Supports streaming updates and pruning outdated trees to optimize memory.
 
 ---
 
@@ -82,9 +86,9 @@ AirPulse is a hybrid system designed to collect, process, and analyze real-time 
 - **VOC/CO2 Sensor (SGP30)**
 - **Heart Rate Sensor (MAX30102)**
 - **Temperature Sensor (DHT22 or MLX90614)**
-- **MicroSD module** for edge logging (optional)
-- **BLE/Wi-Fi module** for communication
-- **Battery + TP4056** for power management
+- **MicroSD module** (for edge logging - optional)
+- **BLE/Wi-Fi module** (for communication)
+- **Battery + TP4056** (for power management)
 
 ---
 
@@ -92,40 +96,18 @@ AirPulse is a hybrid system designed to collect, process, and analyze real-time 
 
 1. **Resource Constraints**: Limited memory/CPU on microcontrollers can hinder model execution.
 2. **Sensor Calibration**: Low-cost sensors require periodic calibration.
-3. **Data Drift**: Environmental changes can impact model accuracy; hence, FF is used.
-4. **Energy Efficiency**: Edge computations must be optimized to preserve battery.
-5. **Network Reliability**: Ensure local storage when cloud connection is unavailable.
-6. **Security**: Secure data transmission and storage.
+3. **Data Drift**: Environmental changes impact model accuracy.
+4. **Energy Efficiency**: Edge computations must be power-optimized.
+5. **Network Reliability**: Fallback edge storage required.
+6. **Security**: Secure data transmission, BLE encryption, and cloud access controls.
 
 ---
 
 ## Installation
 
-> The installation steps remain mostly the same as the original project but now include edge device setup and FF model deployment.
+> Clone the repository and follow firmware and backend setup.
 
----
-
-## Development Phases (Updated)
-
-### Phase 1: Sensor + Edge Setup
-- Connect and calibrate sensors
-- Implement EdgeFrame logic in Arduino firmware
-
-### Phase 2: Kafka Pipeline
-- Integrate BLE/Wi-Fi data transmission to Kafka via gateway
-
-### Phase 3: Forgetful Forest Model
-- Design and train streaming-capable model
-- Integrate with consumer service for real-time analysis
-
-### Phase 4: Analytics & Dashboard
-- REST APIs for device/sensor stats
-- Grafana dashboards with Prometheus metrics
-
----
-
-## Contributions
-
-- **Novel integration of EdgeFrame** for low-latency threshold processing
-- **Forgetful Forest adaptation** for real-time AQI prediction and self-updating ML
-- **Wearable edge device architecture** combining
+```bash
+git clone https://github.com/yourusername/airpulse.git
+cd airpulse
+# Setup Arduino firmware and Spring Boot backend
