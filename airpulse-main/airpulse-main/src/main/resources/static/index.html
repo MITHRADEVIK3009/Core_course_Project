@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirPulse Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .dashboard-section {
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-good { background-color: #2ecc71; }
+        .status-moderate { background-color: #f39c12; }
+        .status-unhealthy { background-color: #e74c3c; }
+        .status-very-unhealthy { background-color: #9b59b6; }
+        .status-hazardous { background-color: #c0392b; }
+        
+        .refresh-info {
+            text-align: right;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AirPulse Dashboard</h1>
+            <p>Real-time Air Quality Monitoring System</p>
+        </header>
+        
+        <div class="dashboard-section">
+            <h2>Latest Sensor Readings</h2>
+            <div class="refresh-info">Last updated: <span id="readings-last-updated">-</span></div>
+            <div id="readings-container">
+                <table id="readings-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Sensor ID</th>
+                            <th>Type</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="readings-body">
+                        <!-- Data will be populated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="dashboard-section">
+            <h2>Recent Alerts</h2>
+            <div class="refresh-info">Last updated: <span id="alerts-last-updated">-</span></div>
+            <div id="alerts-container">
+                <table id="alerts-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Sensor ID</th>
+                            <th>Type</th>
+                            <th>Value</th>
+                            <th>Severity</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alerts-body">
+                        <!-- Data will be populated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Utility function to format timestamps
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+        
+        // Function to truncate UUID to make it more readable
+        function truncateUUID(uuid) {
+            return uuid.substring(0, 8) + '...';
+        }
+        
+        // Function to update the "last updated" timestamp
+        function updateLastUpdated(elementId) {
+            const now = new Date();
+            document.getElementById(elementId).textContent = now.toLocaleString();
+        }
+
+        // Function to fetch and display sensor readings
+        function fetchSensorReadings() {
+            fetch('/api/readings')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('readings-body');
+                    tableBody.innerHTML = ''; // Clear existing rows
+                    
+                    if (data.length === 0) {
+                        // No data case
+                        tableBody.innerHTML = '<tr><td colspan="4" class="empty-message">No sensor readings available</td></tr>';
+                    } else {
+                        // Populate with data
+                        data.forEach(reading => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${formatTimestamp(reading.timestamp)}</td>
+                                <td>${truncateUUID(reading.sensorId)}</td>
+                                <td>${reading.type}</td>
+                                <td>${reading.value.toFixed(2)}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+                    
+                    updateLastUpdated('readings-last-updated');
+                })
+                .catch(error => {
+                    console.error('Error fetching sensor readings:', error);
+                    document.getElementById('readings-body').innerHTML = 
+                        '<tr><td colspan="4" class="empty-message">Error loading sensor readings</td></tr>';
+                });
+        }
+
+        // Function to fetch and display alerts
+        function fetchAlerts() {
+            fetch('/api/alerts')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById('alerts-body');
+                    tableBody.innerHTML = ''; // Clear existing rows
+                    
+                    if (data.length === 0) {
+                        // No data case
+                        tableBody.innerHTML = '<tr><td colspan="6" class="empty-message">No alerts available</td></tr>';
+                    } else {
+                        // Populate with data
+                        data.forEach(alert => {
+                            const row = document.createElement('tr');
+                            
+                            // Determine status class for coloring
+                            let statusClass = 'status-good';
+                            if (alert.severity === 'HAZARDOUS') {
+                                statusClass = 'status-hazardous';
+                            } else if (alert.severity === 'VERY_UNHEALTHY') {
+                                statusClass = 'status-very-unhealthy';
+                            } else if (alert.severity === 'UNHEALTHY') {
+                                statusClass = 'status-unhealthy';
+                            } else if (alert.severity === 'MODERATE') {
+                                statusClass = 'status-moderate';
+                            }
+                            
+                            row.innerHTML = `
+                                <td>${formatTimestamp(alert.timestamp)}</td>
+                                <td>${truncateUUID(alert.sensorId)}</td>
+                                <td>${alert.type}</td>
+                                <td>${alert.value.toFixed(2)}</td>
+                                <td><span class="status-indicator ${statusClass}"></span>${alert.severity}</td>
+                                <td>${alert.locationCode} (${alert.city}, ${alert.region})</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+                    
+                    updateLastUpdated('alerts-last-updated');
+                })
+                .catch(error => {
+                    console.error('Error fetching alerts:', error);
+                    document.getElementById('alerts-body').innerHTML = 
+                        '<tr><td colspan="6" class="empty-message">Error loading alerts</td></tr>';
+                });
+        }
+
+        // Initial data load
+        fetchSensorReadings();
+        fetchAlerts();
+        
+        // Set up auto-refresh every 5 seconds
+        setInterval(() => {
+            fetchSensorReadings();
+            fetchAlerts();
+        }, 5000);
+    </script>
+</body>
+</html> 

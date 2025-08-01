@@ -1,0 +1,73 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/airpulse_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update # Change to 'validate' or 'none' in production
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+#  config:
+#    activate:
+#      on-profile: test # Commenting out for now to make general Kafka settings apply
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: sensorReading:com.example.airpulse.dto.SensorReadingDto,alert:com.example.airpulse.dto.AlertDto
+    consumer:
+      group-id: airpulse-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.example.airpulse.dto"
+        spring.json.type.mapping: sensorReading:com.example.airpulse.dto.SensorReadingDto,alert:com.example.airpulse.dto.AlertDto
+      enable-auto-commit: false # DLQ setting
+    listener:
+      ack-mode: manual # DLQ setting
+      type: batch # DLQ setting
+      missing-topics-fatal: false # DLQ setting
+    template:
+      default-topic: sensor-data-dlq # DLQ setting
+
+info:
+  app:
+    name: AirPulse
+    version: "1.0.0"
+    description: Real-time air quality monitoring system
+
+management:
+  server:
+    port: 8081 # Actuator port
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,metrics,prometheus"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  redis:
+    host: localhost
+    port: 6379
+  cache:
+    type: redis
+    redis:
+      time-to-live: 120000 # 2 minutes in milliseconds 
